@@ -9,7 +9,7 @@ import struct
 
 #Inclinometer reader scripts
 import sys
-sys.path.append("/home/tsouverin/polocalc/porter/")
+sys.path.append("/home/polocalc/Documents/porter")
 from porter.sensors import KERNEL_utils as kernel
 from decoders import ubx
 
@@ -355,7 +355,7 @@ def decode_adc_file_struct(adc_path):
     adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
     return adc_data
 
-def decode_adc_file_ascii(adc_path):
+def decode_adc_file_ascii(adc_path,gain_value):
     """
     Decodes the last version of ADC file written in ASCII format and returns its content as a list of tuples.
 
@@ -372,7 +372,7 @@ def decode_adc_file_ascii(adc_path):
     """
 
     adc_data = []
-    adc_gain = 0.256 #Need to be tracked from the config file
+    adc_gain = gain_value #Need to be tracked from the config file
     try:
         with open(adc_path, "rb") as f:
             lines = f.readlines()
@@ -415,7 +415,16 @@ def is_ascii_file(file_bytes):
     except UnicodeDecodeError:
         return False
     
-def read_adc_file(adc_path):
+
+ADS1015_VALUE_GAIN = {
+    1: 4.096,
+    2: 2.048,
+    4: 1.024,
+    8: 0.512,
+    16: 0.256,
+}
+    
+def read_adc_file(adc_path,gain_config):
     """
     Reads an ADC file and returns its content as a pandas DataFrame.
     
@@ -435,8 +444,10 @@ def read_adc_file(adc_path):
     with open(adc_path, "rb") as f:
         data = f.read()
 
+    gain_value = ADS1015_VALUE_GAIN[gain_config]
+
     if is_ascii_file(data):
-        adc_data = decode_adc_file_ascii(adc_path)
+        adc_data = decode_adc_file_ascii(adc_path,gain_value)
     else:
         adc_data = decode_adc_file_struct(adc_path)
     
