@@ -19,6 +19,7 @@ def get_path_from_keyword(dirpath, keyword):
         for file in files:
             if keyword in file:
                 return os.path.join(root, file)
+    print(f"No file found for {keyword}")
     return None
             
 def to_celcius(temp):

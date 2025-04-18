@@ -3,7 +3,6 @@ import numpy as np
 import datetime
 import scipy as sp
 
-
 import os
 import sys
 
@@ -17,12 +16,19 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--kernel", action="store_true", help="Process the Kernel-100 inclinometer quick look")
     parser.add_argument("-a", "--adc", action="store_true", help="Process the ADC quick look")
     parser.add_argument("-i", "--inertial", action="store_true", help="Process the barometer, magnetometer, accelerometer and gyroscope quick look")
+    parser.add_argument("-o", "--output-dir", default="", help="Output directory to save the plots.")
+
 
     args = parser.parse_args()
+    if not args.output_dir:
+        args.output_dir = os.path.basename(os.path.normpath(args.dirpath))
+
+    output_dir = os.path.join(args.output_dir, "plots")
+    print("All plots saved in : ", output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
     logfile = get_path_from_keyword(args.dirpath, "file.log")
-    output_dir = os.path.join(args.dirpath, "csv_outputs/")
-    os.makedirs(output_dir, exist_ok=True)
+
 
     print(f"All csv files saved in {output_dir}")
 
