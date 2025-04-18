@@ -141,7 +141,6 @@ def plot_inertial(dirpath, plot_dirpath, pdf):
 
     print(f"Barometer plots saved")
 
-
 ################################### GPS #####################################################
 
 def plot_gps(dirpath, plot_dirpath, pdf):
@@ -323,10 +322,14 @@ if __name__ == "__main__":
     parser.add_argument("-k", "--kernel", action="store_true", help="Plots the Kernel-100 inclinometer quick look")
     parser.add_argument("-a", "--adc", action="store_true", help="Plots the ADC quick look")
     parser.add_argument("-i", "--inertial", action="store_true", help="Plots the barometer, magnetometer, accelerometer and gyroscope quick look")
+    parser.add_argument("-o", "--output-dir", default="", help="Output directory to save the plots.")
+
 
     args = parser.parse_args()
+    if not args.output_dir:
+        args.output_dir = os.path.basename(os.path.normpath(args.dirpath))
 
-    plot_dirpath = os.path.join(args.dirpath, "plots")
+    plot_dirpath = os.path.join(args.output_dir, "plots")
     print("All plots saved in : ", plot_dirpath)
     os.makedirs(plot_dirpath, exist_ok=True)
 
