@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
     plot_dirpath = os.path.join(args.dirpath, "plots")
     print("All plots saved in : ", plot_dirpath)
-    os.makedirs(plot_dirpath, exist_ok=False)
+    os.makedirs(plot_dirpath, exist_ok=True)
 
     pdf_path = os.path.join(plot_dirpath, "summary_report.pdf")
     pdf = PdfPages(pdf_path)
