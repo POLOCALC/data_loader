@@ -326,7 +326,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    plot_dirpath = os.path.join("/home/tsouverin/polocalc/data_loader/20250417_165719/", "plots")
+    plot_dirpath = os.path.join(args.dirpath, "plots")
     print("All plots saved in : ", plot_dirpath)
     os.makedirs(plot_dirpath, exist_ok=False)
 
