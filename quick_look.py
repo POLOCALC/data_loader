@@ -6,17 +6,10 @@ import numpy as np
 from io import StringIO
 import matplotlib.pyplot as plt
 
-from get_payload_data import read_inclino_file, read_gps_file
+from get_payload_data import read_inclino_file, read_gps_file, get_path_from_keyword
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def get_path_from_keyword(dirpath, keyword):
-    for root, dir, files in os.walk(dirpath):
-        for file in files:
-            if keyword in file:
-                return os.path.join(root, file)
-    return None
-            
 ##################################INERTIAL INSTRUMENTS########################################################
 
             
@@ -324,34 +317,33 @@ def plot_inclinometer(dirpath, plot_dirpath, pdf):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Plot data from the inertial sensors.")
+    parser = argparse.ArgumentParser(description="Plot data from payload sensors.")
     parser.add_argument("dirpath", type=str, help="Directory path to the folder containing 'sensors_data' folder and 'file.log' with sensor files.")
     parser.add_argument("-g", "--gps", action="store_true", help="Plots the GPS quick look")
-    parser.add_argument("-i", "--inclinometer", action="store_true", help="Plots the inclinometer quick look")
+    parser.add_argument("-k", "--kernel", action="store_true", help="Plots the Kernel-100 inclinometer quick look")
     parser.add_argument("-a", "--adc", action="store_true", help="Plots the ADC quick look")
-    parser.add_argument("-b", "--barometer", action="store_true", help="Plots the barometer, magnetometer, accelerometer and gyroscope quick look")
-
+    parser.add_argument("-i", "--inertial", action="store_true", help="Plots the barometer, magnetometer, accelerometer and gyroscope quick look")
 
     args = parser.parse_args()
 
     plot_dirpath = os.path.join("/home/tsouverin/polocalc/data_loader/20250417_165719/", "plots")
     print("All plots saved in : ", plot_dirpath)
-    os.makedirs(plot_dirpath, exist_ok=True)
+    os.makedirs(plot_dirpath, exist_ok=False)
 
     pdf_path = os.path.join(plot_dirpath, "summary_report.pdf")
     pdf = PdfPages(pdf_path)
 
     #Plot all of them if no arguments given, only the one asked if the argument are given
-    if not args.gps and not args.inclinometer and not args.adc and not args.barometer:
-         args.gps, args.inclinometer, args.adc, args.barometer = True, True, True, True
+    if not args.gps and not args.kernel and not args.adc and not args.inertial:
+         args.gps, args.kernel, args.adc, args.inertial = True, True, True, True
 
-    if args.barometer:
+    if args.inertial:
         plot_inertial(args.dirpath, plot_dirpath, pdf)
     if args.gps:
         plot_gps(args.dirpath, plot_dirpath, pdf)
     if args.adc:
         plot_adc(args.dirpath, plot_dirpath, pdf)
-    if args.inclinometer:
+    if args.kernel:
         plot_inclinometer(args.dirpath, plot_dirpath, pdf)
 
     pdf.close()

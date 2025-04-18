@@ -1,20 +1,26 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import datetime
-import pytz
 
 import os
 import struct
 
 #Inclinometer reader scripts
 import sys
-sys.path.append("/home/polocalc/Documents/porter")
+#sys.path.append("/home/polocalc/porter")
+sys.path.append("/home/tsouverin/polocalc/porter")
 from porter.sensors import KERNEL_utils as kernel
 from decoders import ubx
 
 import time
 
+def get_path_from_keyword(dirpath, keyword):
+    for root, dir, files in os.walk(dirpath):
+        for file in files:
+            if keyword in file:
+                return os.path.join(root, file)
+    return None
+            
 def to_celcius(temp):
     return (temp - 32)*5/9
 
@@ -355,7 +361,7 @@ def decode_adc_file_struct(adc_path):
     adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
     return adc_data
 
-def decode_adc_file_ascii(adc_path,gain_value):
+def decode_adc_file_ascii(adc_path, gain_value=2):
     """
     Decodes the last version of ADC file written in ASCII format and returns its content as a list of tuples.
 
@@ -388,7 +394,7 @@ def decode_adc_file_ascii(adc_path,gain_value):
         # Normalize timestamps (optional but helpful for plotting)
         adc_data["timestamp"] = (adc_data["timestamp"] - adc_data["timestamp"].iloc[0]) / 1e9  # convert from ns to seconds
         adc_data["amplitude"] = adc_data["amplitude"].astype(int)
-        adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
+        #adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
 
     except Exception as e:
         print(f"Error decoding file: {e}")
@@ -424,7 +430,7 @@ ADS1015_VALUE_GAIN = {
     16: 0.256,
 }
     
-def read_adc_file(adc_path,gain_config):
+def read_adc_file(adc_path, gain_config=16):
     """
     Reads an ADC file and returns its content as a pandas DataFrame.
     
@@ -484,6 +490,7 @@ def read_gps_file(gps_path, logfile):
     # Time offset vectorized (relative to first iTOW)
     t_start = read_log_time(keyphrase="Sensor ZED-F9P started", logfile=logfile)
     gps_data["datetime"] = pd.to_datetime(t_start) + pd.to_timedelta(gps_data["iTOW"] - gps_data["iTOW"].iloc[0], unit="ms")
+    # gps_data["timestamp"] = (gps_data["datetime"] - gps_data["datetime"][0]) // pd.Timedelta('1s')
 
     return gps_data
 
