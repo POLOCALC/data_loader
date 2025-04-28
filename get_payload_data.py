@@ -380,25 +380,25 @@ def decode_adc_file_ascii(adc_path, gain_value=2):
 
     adc_data = []
     adc_gain = gain_value #Need to be tracked from the config file
-    try:
-        with open(adc_path, "rb") as f:
-            lines = f.readlines()
+    with open(adc_path, "rb") as f:
+        lines = f.readlines()
 
-        for line in lines:
+    for line in lines:
+        try:
             # Decode the line from bytes to ASCII and split
             text_line = line.decode("ascii").strip()
             timestamp, value = text_line.split()
             adc_data.append((int(timestamp), int(value))) #Convert from digital readout to mV
+        except Exception as e:
+            print(f"Error decoding file: {e}")
+            continue
 
-        adc_data = pd.DataFrame(adc_data, columns=["timestamp", "amplitude"])
-        adc_data["amplitude"] *= adc_gain/4096*1e3
-        # Normalize timestamps (optional but helpful for plotting)
-        adc_data["timestamp"] = (adc_data["timestamp"] - adc_data["timestamp"].iloc[0]) / 1e9  # convert from ns to seconds
-        adc_data["amplitude"] = adc_data["amplitude"].astype(int)
-        #adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
-
-    except Exception as e:
-        print(f"Error decoding file: {e}")
+    adc_data = pd.DataFrame(adc_data, columns=["timestamp", "amplitude"])
+    adc_data["amplitude"] *= adc_gain/4096*1e3
+    # Normalize timestamps (optional but helpful for plotting)
+    adc_data["timestamp"] = (adc_data["timestamp"] - adc_data["timestamp"].iloc[0]) / 1e9  # convert from ns to seconds
+    adc_data["amplitude"] = adc_data["amplitude"].astype(int)
+    #adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
 
     return adc_data
 

@@ -6,7 +6,7 @@ import numpy as np
 from io import StringIO
 import matplotlib.pyplot as plt
 
-from get_payload_data import read_inclino_file, read_gps_file, get_path_from_keyword
+from get_payload_data import read_inclino_file, read_gps_file, read_adc_file, get_path_from_keyword
 from matplotlib.backends.backend_pdf import PdfPages
 
 
@@ -239,8 +239,7 @@ def decode_bin_file(file_path):
 def plot_adc(dirpath, plot_dirpath, pdf):
 
     adc_path = get_path_from_keyword(dirpath, "ADS")
-    decoded = decode_bin_file(adc_path)
-    adc_data = pd.DataFrame(decoded, columns=["timestamp", "amplitude"])
+    adc_data = read_adc_file(adc_path)
     # Normalize timestamps (optional but helpful for plotting)
     adc_data["timestamp"] = (adc_data["timestamp"] - adc_data["timestamp"].iloc[0]) / 1e6  # convert from ns to seconds
     adc_data["amplitude"] = adc_data["amplitude"].astype(int)
@@ -327,7 +326,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if not args.output_dir:
-        args.output_dir = os.path.basename(os.path.normpath(args.dirpath))
+        args.output_dir = f"./quick_look/{os.path.basename(os.path.normpath(args.dirpath))}"
 
     plot_dirpath = os.path.join(args.output_dir, "plots")
     print("All plots saved in : ", plot_dirpath)

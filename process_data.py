@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if not args.output_dir:
-        args.output_dir = os.path.basename(os.path.normpath(args.dirpath))
+        args.output_dir = f"./process_data/{os.path.basename(os.path.normpath(args.dirpath))}"
 
     output_dir = os.path.join(args.output_dir, "csv_outputs")
     print("All plots saved in : ", output_dir)
