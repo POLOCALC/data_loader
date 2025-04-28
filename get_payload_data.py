@@ -362,7 +362,7 @@ def decode_adc_file_struct(adc_path):
     adc_data["datetime"] = pd.to_datetime(adc_data["timestamp"], unit="s")
     return adc_data
 
-def decode_adc_file_ascii(adc_path, gain_value=2):
+def decode_adc_file_ascii(adc_path, gain_value=0.256):
     """
     Decodes the last version of ADC file written in ASCII format and returns its content as a list of tuples.
 

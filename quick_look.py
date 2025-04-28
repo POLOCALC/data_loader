@@ -239,7 +239,7 @@ def decode_bin_file(file_path):
 def plot_adc(dirpath, plot_dirpath, pdf):
 
     adc_path = get_path_from_keyword(dirpath, "ADS")
-    adc_data = read_adc_file(adc_path)
+    adc_data = read_adc_file(adc_path, 16)
     # Normalize timestamps (optional but helpful for plotting)
     adc_data["timestamp"] = (adc_data["timestamp"] - adc_data["timestamp"].iloc[0]) / 1e6  # convert from ns to seconds
     adc_data["amplitude"] = adc_data["amplitude"].astype(int)
