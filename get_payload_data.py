@@ -10,7 +10,9 @@ import sys
 #sys.path.append("/home/polocalc/porter")
 sys.path.append("/home/tsouverin/polocalc/porter")
 from porter.sensors import KERNEL_utils as kernel
-from decoders import ubx
+# from decoders import ubx
+from pyubx2 import UBXReader, UBX_PROTOCOL
+
 
 import time
 
@@ -454,7 +456,7 @@ def read_adc_file(adc_path, gain_config=16):
     gain_value = ADS1015_VALUE_GAIN[gain_config]
 
     if is_ascii_file(data):
-        adc_data = decode_adc_file_ascii(adc_path,gain_value)
+        adc_data = decode_adc_file_ascii(adc_path, gain_value)
     else:
         adc_data = decode_adc_file_struct(adc_path)
     
@@ -478,15 +480,25 @@ def read_gps_file(gps_path, logfile):
         iTOW is the time of week in milliseconds since Sunday midnight, ecefX, ecefY, ecefZ are the ECEF coordinates, and datetime is the converted timestamp in datetime format.
 
     """
-    # Read binary GPS data
-    with open(gps_path, "rb") as fstream:
-        data = ubx.read(fstream)
 
-    # Get NAV-POSLLH data directly if available
-    if "NAV-POSLLH" not in data:
-        raise ValueError("NAV-POSLLH data not found in GPS file.")
+    gps_data = []
+    with open(gps_path, 'rb') as stream:
+        ubr = UBXReader(stream, protfilter=UBX_PROTOCOL, quitonerror=False)
+        for raw_data, parsed_data in ubr:
+            if parsed_data.identity == "NAV-POSLLH":
+                gps_data.append(pd.Series(parsed_data.__dict__))
+        gps_data = pd.DataFrame(gps_data)[["iTOW", "lon", "lat", "height", "hMSL", "hAcc", "vAcc"]]
 
-    gps_data = pd.DataFrame(data["NAV-POSLLH"])
+
+    # # Read binary GPS data
+    # with open(gps_path, "rb") as fstream:
+    #     data = ubx.read(fstream)
+
+    # # Get NAV-POSLLH data directly if available
+    # if "NAV-POSLLH" not in data:
+    #     raise ValueError("NAV-POSLLH data not found in GPS file.")
+
+    # gps_data = pd.DataFrame(data["NAV-POSLLH"])
 
     # Time offset vectorized (relative to first iTOW)
     t_start = read_log_time(keyphrase="Sensor ZED-F9P started", logfile=logfile)
