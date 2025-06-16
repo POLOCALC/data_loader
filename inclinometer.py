@@ -2,9 +2,7 @@ import pandas as pd
 from pathlib import Path
 from tools import drop_nan_and_zero_cols, read_log_time
 
-import sys
-sys.path.append("/home/tsouverin/polocalc/porter")
-from porter.sensors import KERNEL_utils as kernel
+from decoders import KERNEL_utils as kernel
 
 def decode_inclino(inclino_path):
     """

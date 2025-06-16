@@ -4,6 +4,27 @@ import pandas as pd
 import datetime
 from tools import read_log_time
 
+def find_flight_path(num, dir_path="/home/tsouverin/polocalc/data/dji_log_data/"):
+    """
+    Find the path to a flight log file with a given number.
+
+    Parameters
+    ----------
+    num : int
+        The number of the flight log to find.
+    dir_path : str
+        The root directory to search in. Defaults to
+        ``/home/tsouverin/polocalc/data/dji_log_data/``.
+
+    Returns
+    -------
+    str or None
+        The path to the file if found, or ``None`` if the file is not found.
+    """
+    for root, _, _ in os.walk(dir_path):
+        if os.path.isfile(os.path.join(root, f"FLY{num}.csv")):
+            return os.path.join(root, f"FLY{num}.csv")
+    return None 
 def match_litchi_filename(drone_cat, litchi_dir="/home/tsouverin/polocalc/data/local/litchi_flightlogs/"):    
     """
     Match and retrieve the file path for a Litchi flight log file based on
@@ -100,6 +121,7 @@ def match_sensor_filename(drone_cat, sensors_root_dir, keyphrase, filename_prefi
             matched_logs.append(logfile)
 
     if not matched_timestamps:
+        print("No matches found.")
         return None, None
 
     deltas = [abs(t - drone_tst) for t in matched_timestamps]
@@ -109,6 +131,7 @@ def match_sensor_filename(drone_cat, sensors_root_dir, keyphrase, filename_prefi
         idx = deltas.index(min_delta)
         return matched_files[idx], matched_logs[idx]
     else:
+        print("No timing match.")
         return None, None
     
 def match_inclino_filenames(drone_cat, sensors_root_dir="/home/tsouverin/polocalc/data/local/payload_data"):

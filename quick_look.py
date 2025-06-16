@@ -6,7 +6,8 @@ import numpy as np
 from io import StringIO
 import matplotlib.pyplot as plt
 
-from get_payload_data import read_inclino_file, read_gps_file, read_adc_file, get_path_from_keyword
+from get_payload_data import read_inclino_file, read_gps_file, read_adc_file
+from tools import get_path_from_keyword
 from matplotlib.backends.backend_pdf import PdfPages
 
 
