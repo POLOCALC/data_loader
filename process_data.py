@@ -6,7 +6,8 @@ import scipy as sp
 import os
 import sys
 
-from get_payload_data import  read_adc_file, read_gps_file, read_inclino_file, get_path_from_keyword
+from get_payload_data import  read_adc_file, read_gps_file, read_inclino_file
+from tools import get_path_from_keyword
 
 if __name__ == "__main__":
     import argparse
@@ -46,19 +47,19 @@ if __name__ == "__main__":
         magnetometer_path = get_path_from_keyword(args.dirpath, "magnetometer.bin")
         if magnetometer_path is not None:
             magneto = pd.read_csv(magnetometer_path, delimiter=' ', names=["timestamp", "mag_x", "mag_y", "mag_z"])
-            baro.to_csv(os.path.join(output_dir, "magnetometer.csv"))
+            magneto.to_csv(os.path.join(output_dir, "magnetometer.csv"))
             print("Magnetometer file saved")
 
         accelerometer_path = get_path_from_keyword(args.dirpath, "accelerometer.bin")
         if accelerometer_path is not None:
             accelero = pd.read_csv(accelerometer_path, delimiter=' ', names=["timestamp", "acc_x", "acc_y", "acc_z"])
-            baro.to_csv(os.path.join(output_dir, "accelerometer.csv"))
+            accelero.to_csv(os.path.join(output_dir, "accelerometer.csv"))
             print("Accelerometer file saved")
 
         gyroscope_path = get_path_from_keyword(args.dirpath, "gyroscope.bin")
         if gyroscope_path is not None:
             gyro = pd.read_csv(gyroscope_path, delimiter=' ', names=["timestamp", "x", "y", "z"])
-            baro.to_csv(os.path.join(output_dir, "gyroscope.csv"))
+            gyro.to_csv(os.path.join(output_dir, "gyroscope.csv"))
             print("Gyroscope file saved")
 
     if args.gps:
