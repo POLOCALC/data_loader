@@ -13,19 +13,9 @@ from porter.sensors import KERNEL_utils as kernel
 # from decoders import ubx
 from pyubx2 import UBXReader, UBX_PROTOCOL
 
+from tools import drop_nan_and_zero_cols, get_logpath_from_datapath, far_to_celcius
 
 import time
-
-def get_path_from_keyword(dirpath, keyword):
-    for root, dir, files in os.walk(dirpath):
-        for file in files:
-            if keyword in file:
-                return os.path.join(root, file)
-    print(f"No file found for {keyword}")
-    return None
-            
-def to_celcius(temp):
-    return (temp - 32)*5/9
 
 def get_drone_data(datapath):
     """
@@ -552,6 +542,9 @@ def read_inclino_file(inclino_path, logfile=None):
                     break
             except:
                 print("Couldn't find start time from logfile. Skipping datetime conversion.")
+    else:
+        print("No logfile given. Skipping datetime conversion.")
+
 
     # Rename Euler angles to match drone convention
     inclino_data = inclino_data.rename(columns={"Roll": "pitch", "Pitch": "roll", "Heading": "yaw"})
@@ -621,25 +614,6 @@ def read_litchi_file(litchi_path):
     # litchi_data["datetime(local)"] = pd.to_datetime(litchi_data["datetime(local)"].values)
     litchi_data = drop_nan_and_zero_cols(litchi_data)
     return litchi_data
-
-def drop_nan_and_zero_cols(df):
-    """
-    Drop any columns in the given DataFrame that consist entirely of NaN or zero values.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        DataFrame to be cleaned.
-
-    Returns
-    -------
-    df : pandas.DataFrame
-        DataFrame with any columns consisting of entirely NaN or zero values removed.
-    """
-    all_nan = df.isna().all()
-    all_zero = df.eq(0).all()
-    to_drop = all_nan | all_zero
-    return df.loc[:, ~to_drop]
 
 def find_flight_path(num, dir_path="/home/tsouverin/polocalc/data/dji_log_data/"):
     """
