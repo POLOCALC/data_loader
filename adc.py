@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import struct
 
-from tools import is_ascii_file, get_logpath_from_datapath
+from tools import is_ascii_file
+from path_handler import get_logpath_from_datapath
 
 ADS1015_VALUE_GAIN = {
     1: 4.096,

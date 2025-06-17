@@ -1,8 +1,8 @@
 import pandas as pd
 from pyubx2 import UBXReader, UBX_PROTOCOL
 
-from tools import read_log_time, get_logpath_from_datapath
-
+from tools import read_log_time
+from path_handler import get_logpath_from_datapath
 
 class GPS:
     def __init__(self, path, logpath=None):

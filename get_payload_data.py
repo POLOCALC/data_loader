@@ -615,7 +615,7 @@ def read_litchi_file(litchi_path):
     litchi_data = drop_nan_and_zero_cols(litchi_data)
     return litchi_data
 
-def find_flight_path(num, dir_path="/home/tsouverin/polocalc/data/dji_log_data/"):
+def flightpath_from_num(num, dir_path="/home/tsouverin/polocalc/data/dji_log_data/"):
     """
     Find the path to a flight log file with a given number.
 

@@ -1,6 +1,6 @@
 import os
 import datetime
-from pathlib import Path
+
 def read_log_time(keyphrase, logfile):
     """
     Read a log file and find the line containing the given keyphrase.
@@ -48,39 +48,19 @@ def drop_nan_and_zero_cols(df):
     return df.loc[:, ~to_drop]
 
 def get_path_from_keyword(dirpath, keyword):
+    paths = []
     for root, dir, files in os.walk(dirpath):
         for file in files:
             if keyword in file:
-                return os.path.join(root, file)
-    print(f"No file found for {keyword}")
-    return None
+                paths.append(os.path.join(root, file))
 
-def find_flight_path(num, dir_path="/home/tsouverin/polocalc/data/dji_log_data/"):
-    """
-    Find the path to a flight log file with a given number.
+    if len(paths) == 0:
+        print(f"No file found for {keyword}")
+        return None
+    elif len(paths) == 1:
+        paths = paths[0]
 
-    Parameters
-    ----------
-    num : int
-        The number of the flight log to find.
-    dir_path : str
-        The root directory to search in. Defaults to
-        ``/home/tsouverin/polocalc/data/dji_log_data/``.
-
-    Returns
-    -------
-    str or None
-        The path to the file if found, or ``None`` if the file is not found.
-    """
-    for root, _, _ in os.walk(dir_path):
-        if os.path.isfile(os.path.join(root, f"FLY{num}.csv")):
-            return os.path.join(root, f"FLY{num}.csv")
-    return None 
-
-def get_logpath_from_datapath(datapath):
-    dirname = Path(self.path).resolve().parents[1]
-    logpath = str(files[0]) if (files := [f for f in dirname.iterdir() if f.name.startswith("file.log")]) else None
-    return logpath
+    return paths
 
 def is_ascii_file(file_bytes):
     """

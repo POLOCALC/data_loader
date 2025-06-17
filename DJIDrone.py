@@ -5,26 +5,42 @@ class DJIDrone:
     def __init__(self, path):
         self.path = path
         self.data = None
-    def load_data(self):
+
+    def load_data(self, cols=None):
         """
-        Read the drone data from the given CSV file. The function filters the
-        data to select only the rows in which both the RTK latitude and the
-        computed latitude are valid. The function also filters the data to
-        select only the rows in which the RTK latitude refreshed.
+        Load and filter drone data from a CSV file.
+
+        The function:
+        - Loads only specified columns.
+        - Converts 'GPS:dateTimeStamp' to datetime.
+        - Filters out rows with missing or zero values in critical columns.
+        - Drops any columns that are fully NaN or zero using `drop_nan_and_zero_cols`.
 
         Parameters
         ----------
-        datapath : string
-            The path to the CSV file containing the drone data.
+        cols : list of str, optional
+            List of columns to load. Defaults to key RTK and timestamp fields.
 
         Returns
         -------
-        drone_data : pandas.DataFrame
-            A DataFrame containing the filtered drone data.
+        None
+            Filtered data is stored in `self.data`.
         """
-        data = pd.read_csv(self.path, low_memory=False, usecols=["Clock:offsetTime", 'GPS:dateTimeStamp', "RTKdata:GpsState", "RTKdata:Lat_P", "RTKdata:Lon_P", "RTKdata:Hmsl_P"])
-        ind = data["RTKdata:GpsState"].notna() & data["RTKdata:Lat_P"] != 0 & data["GPS:dateTimeStamp"].notna()
+        if cols is None:
+            cols = ["Clock:offsetTime", 'GPS:dateTimeStamp', "RTKdata:GpsState", "RTKdata:Lat_P", "RTKdata:Lon_P", "RTKdata:Hmsl_P"]
+
+        data = pd.read_csv(self.path, low_memory=False, usecols=cols)
+        ind = pd.Series(True, index=data.index)
+
+        if "GPS:dateTimeStamp" in data.columns:
+            data["GPS:dateTimeStamp"] = pd.to_datetime(data["GPS:dateTimeStamp"].values, errors="coerce")
+            ind &= data["GPS:dateTimeStamp"].notna()
+        if "RTKdata:GpsState" in data.columns:
+            ind &= data["RTKdata:GpsState"].notna()
+        if "RTKdata:Lat_P" in data.columns:
+            ind &= data["RTKdata:Lat_P"] != 0  
+
         data = data[ind].reset_index(drop=True)
-        data["GPS:dateTimeStamp"] = pd.to_datetime(data["GPS:dateTimeStamp"].values)
         data = drop_nan_and_zero_cols(data)
+        
         self.data = data
