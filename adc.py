@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import struct
 
-from tools import is_ascii_file
-from path_handler import get_logpath_from_datapath
+from tools import is_ascii_file, get_logpath_from_datapath
 
 ADS1015_VALUE_GAIN = {
     1: 4.096,
@@ -86,18 +85,25 @@ def decode_adc_file_ascii(adc_path, gain_config=0.256):
 class ADC:
     def __init__(self, path, logpath=None, gain_config=16):
         self.path = path
+        self.data = None
+
         if logpath is not None:
             self.logpath = logpath
         else:
             self.logpath = get_logpath_from_datapath(self.path)
 
         self.tstart = None
-        self.is_ascii = is_ascii_file(self.path)
-        self.gain_config
-        self.gain = ADS1015_VALUE_GAIN[gain_config]
 
-def load_data(self):
-    if self.is_ascii:
-        self.data = decode_adc_file_ascii(self.path, self.gain_config)
-    else:
-        self.data = decode_adc_file_struct(self.path)
+        with open(self.path, "rb") as f:
+            data = f.read()
+            self.is_ascii = is_ascii_file(data)
+            f.close()
+
+        self.gain_config = gain_config
+        self.gain = ADS1015_VALUE_GAIN[gain_config]
+        
+    def load_data(self):
+        if self.is_ascii:
+            self.data = decode_adc_file_ascii(self.path, self.gain_config)
+        else:
+            self.data = decode_adc_file_struct(self.path)

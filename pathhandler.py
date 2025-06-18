@@ -30,7 +30,7 @@ def flightpath_from_num(num, dirpath=DATADIR):
         if os.path.isfile(os.path.join(root, f"FLY{num}.csv")):
             return os.path.join(root, f"FLY{num}.csv")
         
-    print(f"No file found in {dirpath} for {num}.")
+    print(f"[flightpath_from_num] No file found in {dirpath} for {num}.")
     return None 
 
 
@@ -176,7 +176,7 @@ class PathHandler:
     def __init__(self, num, dirpath=DATADIR):
         self.num = num 
         self.dirpath = dirpath
-        self.drone = flightpath_from_num(num, dirpath)
+        self.drone = None
         self.logfile = None
         self.inclino = None
         self.adc = None
@@ -185,10 +185,12 @@ class PathHandler:
         self.gyro = None
         self.accelero = None
         self.magneto = None
+        self.imu_dir = None
         self.litchi = None
 
     def get_filenames(self, litchi=True):
-
+        
+        self.drone = flightpath_from_num(self.num, self.dirpath)
         drone = DJIDrone(self.drone)
         drone.load_data(cols=["GPS:dateTimeStamp"])
 

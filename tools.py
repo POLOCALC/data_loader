@@ -1,5 +1,6 @@
 import os
 import datetime
+from pathlib import Path
 
 def read_log_time(keyphrase, logfile):
     """
@@ -55,7 +56,7 @@ def get_path_from_keyword(dirpath, keyword):
                 paths.append(os.path.join(root, file))
 
     if len(paths) == 0:
-        print(f"No file found for {keyword}")
+        print(f"[drop_nan_and_zero_cols] No file found for {keyword}")
         return None
     elif len(paths) == 1:
         paths = paths[0]
@@ -81,6 +82,11 @@ def is_ascii_file(file_bytes):
         return True
     except UnicodeDecodeError:
         return False
+    
+def get_logpath_from_datapath(datapath):
+    dirname = Path(datapath).resolve().parents[1]
+    logpath = str(files[0]) if (files := [f for f in dirname.iterdir() if f.name.startswith("file.log")]) else None
+    return logpath
 
 def far_to_celcius(temp):
     return (temp - 32)*5/9
