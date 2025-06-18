@@ -86,7 +86,7 @@ class Inclinometer:
         # Load data from binary decoder
         inclino_data = pd.DataFrame(decode_inclino(self.path))
 
-        # Detect counter wrap-arounds (where counter resets)
+        # # Detect counter wrap-arounds (where counter resets)
         # counter = inclino_data["Counter"]
         # diff_counter = counter.diff()
         # wraps = diff_counter.abs() > 60000
