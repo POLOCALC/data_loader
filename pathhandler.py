@@ -90,7 +90,7 @@ def match_log_filename(drone, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(
             matched_logs.append(logfile)
 
     if not matched_timestamps:
-        print(f"[match_log_filename] No matches found for '{drone.path}'.")
+        print(f"[match_log_filename] No matching timestamps found for '{drone.path}'.")
         return None, None
 
     deltas = [abs(t - drone_tst) for t in matched_timestamps]
@@ -194,18 +194,21 @@ class PathHandler:
         drone = DJIDrone(self.drone)
         drone.load_data(cols=["GPS:dateTimeStamp"])
 
-        sensors_dir, self.logfile = match_log_filename(drone)
+        sensors_dir, self.logfile = match_log_filename(drone, self.dirpath)
 
-        self.inclino = get_path_from_keyword(sensors_dir, "Kernel-100")
-        self.adc = get_path_from_keyword(sensors_dir, "ADS1015")
-        self.gps = get_path_from_keyword(sensors_dir, "ZED-F9P")
-        self.baro = get_path_from_keyword(sensors_dir, "barometer")
-        self.gyro = get_path_from_keyword(sensors_dir, "gyroscope")
-        self.accelero = get_path_from_keyword(sensors_dir, "accelerometer")
-        self.magneto = get_path_from_keyword(sensors_dir, "magnetometer")
+        if sensors_dir is None:
+            print("[get_filenames] No matching logfile found. Stopped the process.")
+        else:
+            self.inclino = get_path_from_keyword(sensors_dir, "Kernel-100")
+            self.adc = get_path_from_keyword(sensors_dir, "ADS1015")
+            self.gps = get_path_from_keyword(sensors_dir, "ZED-F9P")
+            self.baro = get_path_from_keyword(sensors_dir, "barometer")
+            self.gyro = get_path_from_keyword(sensors_dir, "gyroscope")
+            self.accelero = get_path_from_keyword(sensors_dir, "accelerometer")
+            self.magneto = get_path_from_keyword(sensors_dir, "magnetometer")
 
-        if litchi:
-            self.litchi = match_litchi_filename(drone)
+            if litchi:
+                self.litchi = match_litchi_filename(drone)
 
         
 

@@ -33,9 +33,8 @@ class Payload:
                 continue
 
             attr = getattr(self, attr_name)
-
             # Call load_data() if the attribute has it
-            if hasattr(attr, "load_data") and callable(getattr(attr, "load_data")):
+            if hasattr(attr, "load_data") and callable(getattr(attr, "load_data")) and getattr(attr, "path") is not None:
                 attr.load_data()
 
 class DataHandler:
@@ -71,5 +70,11 @@ class DataHandler:
 
             # Call load_data() if the attribute has it
             if hasattr(attr, "load_data") and callable(getattr(attr, "load_data")):
-                attr.load_data()
+                if hasattr(attr, "path") and getattr(attr, "path") is not None:
+                    attr.load_data()
+                elif not hasattr(attr, "path"):
+                    attr.load_data()
+                else:
+                    print(f"[load_data] Could not load data for '{attr_name}'")
+                    continue
 

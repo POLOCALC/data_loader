@@ -56,7 +56,7 @@ def get_path_from_keyword(dirpath, keyword):
                 paths.append(os.path.join(root, file))
 
     if len(paths) == 0:
-        print(f"[drop_nan_and_zero_cols] No file found for {keyword}")
+        print(f"[get_path_from_keyword] No file found for {keyword}")
         return None
     elif len(paths) == 1:
         paths = paths[0]
