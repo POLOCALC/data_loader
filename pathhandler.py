@@ -5,7 +5,8 @@ import datetime
 from pathlib import Path
 
 from tools import read_log_time, get_path_from_keyword
-from DJIDrone import DJIDrone
+from drones.DJIDrone import DJIDrone
+from drones.BlackSquareDrone import BlackSquareDrone
 
 DATADIR = "/data/POLOCALC/campaigns"
 
@@ -33,9 +34,42 @@ def flightpath_from_num(num, dirpath=DATADIR):
     print(f"[flightpath_from_num] No file found in {dirpath} for {num}.")
     return None 
 
+def get_drone_timestamp(drone_path, model="dji"):
+    """
+    Retrieve the timestamp of the first GPS data entry for a given drone.
 
-def match_log_filename(drone, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(minutes=10)):
+    Parameters
+    ----------
+    drone : DJIDrone or BlackSquareDrone
+        An instance of a drone object containing GPS data.
+    type : str, optional
+        The type of drone, either 'dji' or 'blacksquare'. Default is 'dji'.
 
+    Returns
+    -------
+    pd.Timestamp
+        The timestamp of the first GPS data entry in UTC format.
+
+    Raises
+    ------
+    ValueError
+        If the `type` is neither 'dji' nor 'blacksquare'.
+    """
+    if model.lower() == "dji":
+        drone = DJIDrone(drone_path)
+        drone.load_data(cols=["GPS:dateTimeStamp"])
+        drone_tst = pd.to_datetime(drone.data["GPS:dateTimeStamp"], utc=True).iloc[0]
+    elif model.lower() == "blacksquare":
+        drone = BlackSquareDrone(drone_path)
+        drone.load_data()
+        raise NotImplementedError("[get_drone_timestamp] BlackSquareDrone timestamp handling is not implemented yet")
+    else:
+        raise ValueError(f"[get_drone_timestamp] Unknown type {type}. Should be 'dji' or 'blacksquare'.")
+    return drone_tst
+
+
+
+def match_log_filename(drone_tst, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(minutes=10)):
     """
     Matches and retrieves the most relevant sensor log directory and its corresponding log file
     based on the timestamp of the drone data.
@@ -64,9 +98,6 @@ def match_log_filename(drone, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(
     - Uses a hardcoded keyphrase to extract timestamps from log files.
     - Returns the closest match only if the time difference is within the threshold.
     """
-
-    drone_tst = pd.to_datetime(drone.data["GPS:dateTimeStamp"], utc=True).iloc[0]
-
     matched_timestamps = []
     matched_dirs = []
     matched_logs = []
@@ -90,7 +121,7 @@ def match_log_filename(drone, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(
             matched_logs.append(logfile)
 
     if not matched_timestamps:
-        print(f"[match_log_filename] No matching timestamps found for '{drone.path}'.")
+        print(f"[match_log_filename] No matching timestamps found.")
         return None, None
 
     deltas = [abs(t - drone_tst) for t in matched_timestamps]
@@ -100,10 +131,10 @@ def match_log_filename(drone, sensors_root_dir=DATADIR, time_delta=pd.Timedelta(
         idx = deltas.index(min_delta)
         return matched_dirs[idx], matched_logs[idx]
     else:
-        print(f"[match_log_filename] Found no files with time delta <({time_delta}) for '{drone.path}'.")
+        print(f"[match_log_filename] Found no files with time delta <({time_delta}).")
         return None, None
     
-def match_litchi_filename(drone, litchi_dir=DATADIR, time_delta=pd.Timedelta(minutes=10)):    
+def match_litchi_filename(drone_tst, litchi_dir=DATADIR, time_delta=pd.Timedelta(minutes=10)):    
     """
     Matches and retrieves the Litchi flight log file closest in time to the drone's
     recorded GPS timestamp.
@@ -131,9 +162,6 @@ def match_litchi_filename(drone, litchi_dir=DATADIR, time_delta=pd.Timedelta(min
     - If no filenames can be parsed or if none match within the time threshold,
       the function returns None.
     """
-
-    drone_tst = pd.to_datetime(drone.data["GPS:dateTimeStamp"], utc=True).iloc[0]
-
     #Look for litchi files with matching datetime
     litchi_files = get_path_from_keyword(litchi_dir, "_v2.csv") #[f for f in os.listdir(litchi_dir) if f.endswith("_v2.csv") and f.startswith("20")]
     if not litchi_files:
@@ -173,9 +201,10 @@ def match_litchi_filename(drone, litchi_dir=DATADIR, time_delta=pd.Timedelta(min
 
 class PathHandler:
 
-    def __init__(self, num, dirpath=DATADIR):
+    def __init__(self, num, dirpath=DATADIR, drone_model="dji"):
         self.num = num 
         self.dirpath = dirpath
+        self.drone_model = drone_model
         self.drone = None
         self.logfile = None
         self.inclino = None
@@ -191,10 +220,8 @@ class PathHandler:
     def get_filenames(self, litchi=True):
         
         self.drone = flightpath_from_num(self.num, self.dirpath)
-        drone = DJIDrone(self.drone)
-        drone.load_data(cols=["GPS:dateTimeStamp"])
-
-        sensors_dir, self.logfile = match_log_filename(drone, self.dirpath)
+        drone_tst = get_drone_timestamp(self.drone, model=self.drone_model)
+        sensors_dir, self.logfile = match_log_filename(drone_tst, self.dirpath)
 
         if sensors_dir is None:
             print("[get_filenames] No matching logfile found. Stopped the process.")
@@ -208,7 +235,7 @@ class PathHandler:
             self.magneto = get_path_from_keyword(sensors_dir, "magnetometer")
 
             if litchi:
-                self.litchi = match_litchi_filename(drone)
+                self.litchi = match_litchi_filename(drone_tst)
 
         
 

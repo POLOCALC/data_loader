@@ -1,11 +1,11 @@
 from pathhandler import PathHandler, DATADIR
-from inclinometer import Inclinometer
-from gps import GPS
-from adc import ADC
-from IMU import IMUSensor
-from litchi import Litchi
-from DJIDrone import DJIDrone
-from BlackSquareDrone import BlackSquareDrone
+from sensors.inclinometer import Inclinometer
+from sensors.gps import GPS
+from sensors.adc import ADC
+from sensors.IMU import IMUSensor
+from drones.litchi import Litchi
+from drones.DJIDrone import DJIDrone
+from drones.BlackSquareDrone import BlackSquareDrone
 
 def drone_init(drone_model, drone_path):
     drone_model = drone_model.lower()
