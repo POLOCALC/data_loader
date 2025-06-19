@@ -196,7 +196,7 @@ def match_litchi_filename(drone_tst, litchi_dir=DATADIR, time_delta=pd.Timedelta
         best_match = litchi_df.loc[deltas.idxmin(), "filename"]
         return best_match
     else:
-        print(f"[match_litchi_filename] No Litchi file within ({time_delta}) for '{drone.path}'.")
+        print(f"[match_litchi_filename] No Litchi file within ({time_delta}).")
         return None
 
 class PathHandler:

@@ -7,13 +7,10 @@ import struct
 
 #Inclinometer reader scripts
 import sys
-#sys.path.append("/home/polocalc/porter")
-sys.path.append("/home/tsouverin/polocalc/porter")
-from porter.sensors import KERNEL_utils as kernel
-# from decoders import ubx
+from decoders import KERNEL_utils as kernel
 from pyubx2 import UBXReader, UBX_PROTOCOL
 
-from tools import drop_nan_and_zero_cols, get_logpath_from_datapath, far_to_celcius
+from tools import drop_nan_and_zero_cols
 
 import time
 
