@@ -1,21 +1,66 @@
-# Data Loader
+# POLOCALC Data Loader
 
-This repository provides the get_payload_data that contains function to read any sensors, and two Python scripts designed to assist in the quick visualization and structured export of sensor log data:
+This repository provides tools to load and visualize data from drone missions, including drone logs, payload sensor data, Litchi flight logs, and (optionally) photogrammetry data.
 
-- [`quick_look.py`](#quick_lookpy-—-quick-visualization-and-report-generation): Generates plots and a descriptive PDF summary report.
-- [`process_data.py`](#process_datapy-—-structured-csv-export-of-raw-sensor-data): Processes raw sensor logs and converts them into clean, time-aligned CSV files.
+## DataHandler Example
+
+This example demonstrates how to load drone and payload sensor data using the `DataHandler` class and plot inclinometer pitch over time.
+
+### Requirements
+
+Ensure you have the following Python packages installed:
+
+* `matplotlib`
+* `pandas`
+* Your local `datahandler` module and its dependencies (e.g., `DJIDrone`, `IMUSensor`, etc.)
+
+### Example
+
+```python
+from datahandler import DataHandler
+import matplotlib.pyplot as plt
+
+# Define the base directory for the campaign and the flight number
+dirpath = "/data/POLOCALC/campaigns/2025_04"
+num = 522
+
+# Initialize and load all available data
+DH = DataHandler(num=num, dirpath=dirpath)
+DH.load_data()
+
+# Plot pitch from the inclinometer sensor
+plt.figure()
+plt.plot(DH.payload.inclino.data["datetime"], DH.payload.inclino.data["pitch"])
+plt.xlabel("Time")
+plt.ylabel("Pitch (degrees)")
+plt.title("Inclinometer Pitch Over Time")
+plt.grid(True)
+plt.show()
+```
 
 ---
 
-## `quick_look.py` — Quick Visualization and Report Generation
+## Utilities
 
-This script is designed for exploratory data analysis and test validation. It reads various raw sensor log files (in CSV format) and generates a multi-page PDF report that includes:
+This repository also contains two Python scripts designed for quick visualization and structured export of sensor log data:
 
-- Line plots for each type of data (e.g. GPS position, accelerometer values, barometric pressure, etc.).
-- Sampling time diagnostics to evaluate timing consistency.
+* \`\` – Generates plots and a descriptive PDF summary report.
+* \`\` – Processes raw sensor logs and converts them into clean, time-aligned CSV files.
 
-### ▶️ Usage
+### quick\_look.py – Quick Visualization
+
+This script is used for exploratory analysis and test validation. It creates a multi-page PDF containing:
+
+* Line plots (e.g., GPS position, accelerometer, barometer).
+* Sampling time diagnostics.
+
+### process\_data.py – CSV Export
+
+Converts raw logs into aligned CSV files suitable for downstream analysis or archiving.
+
+### ▶️ Example Usage
 
 ```bash
-python quick_look.py path/to/logs
-python process_data.py path/to/logs
+python utils/quick_look.py /path/to/logs
+python utils/process_data.py /path/to/logs
+```
