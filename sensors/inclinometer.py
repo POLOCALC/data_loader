@@ -86,30 +86,30 @@ class Inclinometer:
         # Load data from binary decoder
         inclino_data = pd.DataFrame(decode_inclino(self.path))
 
-        # # Detect counter wrap-arounds (where counter resets)
-        # counter = inclino_data["Counter"]
-        # diff_counter = counter.diff()
-        # wraps = diff_counter.abs() > 60000
-        # wrap_cumsum = wraps.cumsum()
-        # new_counter = counter + wrap_cumsum * (counter.max() - counter.min())
+        # Detect counter wrap-arounds (where counter resets)
+        counter = inclino_data["Counter"]
+        diff_counter = counter.diff()
+        wraps = diff_counter.abs() > 60000
+        wrap_cumsum = wraps.cumsum()
+        new_counter = counter + wrap_cumsum * (counter.max() - counter.min())
         
-        # ind_good = new_counter.diff() == 16
-        # new_counter = new_counter[ind_good]
-        # inclino_data = inclino_data[ind_good]
+        ind_good = (new_counter.diff() == 16) | (new_counter.diff() == 13) #must be updated to more flexibility
+        new_counter = new_counter[ind_good]
+        inclino_data = inclino_data[ind_good]
 
-        # # Convert counter to time (seconds)
-        # inclino_tst = new_counter / 2000.0  # assuming 2 kHz sampling
-        # inclino_data["timestamp"] = inclino_tst
+        # Convert counter to time (seconds)
+        inclino_tst = new_counter / 2000.0  # assuming 2 kHz sampling
+        inclino_data["timestamp"] = inclino_tst
 
-        # if self.logpath is not None:
-        #     self.read_log_time(logfile=self.logpath)
-        #     inclino_data["datetime"] = inclino_data["timestamp"].apply(lambda x: self.tstart + pd.Timedelta(seconds=x))
-        #     inclino_data["tunix"] = inclino_data["datetime"].astype('int64') / 10**9
+        if self.logpath is not None:
+            self.read_log_time(logfile=self.logpath)
+            inclino_data["datetime"] = inclino_data["timestamp"].apply(lambda x: self.tstart + pd.Timedelta(seconds=x))
+            inclino_data["tunix"] = inclino_data["datetime"].astype('int64') / 10**9
 
-        # # Rename Euler angles to match drone convention
-        # inclino_data = inclino_data.rename(columns={"Roll": "pitch", "Pitch": "roll", "Heading": "yaw"})
-        # inclino_data.loc[:, "pitch"] = -inclino_data["pitch"]
-        # inclino_data = drop_nan_and_zero_cols(inclino_data)
+        # Rename Euler angles to match drone convention
+        inclino_data = inclino_data.rename(columns={"Roll": "pitch", "Pitch": "roll", "Heading": "yaw"})
+        inclino_data.loc[:, "pitch"] = -inclino_data["pitch"]
+        inclino_data = drop_nan_and_zero_cols(inclino_data)
 
         self.data = inclino_data
 
