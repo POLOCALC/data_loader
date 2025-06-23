@@ -43,6 +43,9 @@ Otherwise, any sensor can be read independantly using the corresponding script a
 from inclinometer import Inclinometer
 import matplotlib.pyplot as plt
 
+datapath = "/path/to/data"
+logpath = "/path/to/logfile"
+
 inclino = Inclinometer(datapath=datapath, logpath=logpath)
 inclino.load_data()
 
