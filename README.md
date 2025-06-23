@@ -14,7 +14,7 @@ Ensure you have the following Python packages installed:
 * `pandas`
 * Your local `datahandler` module and its dependencies (e.g., `DJIDrone`, `IMUSensor`, etc.)
 
-### Example
+### Examples
 
 ```python
 from datahandler import DataHandler
@@ -34,7 +34,27 @@ plt.plot(DH.payload.inclino.data["datetime"], DH.payload.inclino.data["pitch"])
 plt.xlabel("Time")
 plt.ylabel("Pitch (degrees)")
 plt.title("Inclinometer Pitch Over Time")
-plt.grid(True)
+plt.show()
+```
+
+Otherwise, any sensor can be read independantly using the corresponding script and following a similar structure
+
+```python
+from inclinometer import Inclinometer
+import matplotlib.pyplot as plt
+
+inclino = Inclinometer(datapath=datapath, logpath=logpath)
+inclino.load_data()
+
+fig, axs = plt.subplots(3, 1, sharex=True)
+axs[0].plot(inclino.data["datetime"], inclino.data["yaw"], '.')
+axs[1].plot(inclino.data["datetime"], inclino.data["pitch"], '.')
+axs[2].plot(inclino.data["datetime"], inclino.data["roll"], '.')
+axs[0].set_ylabel("Yaw (degrees)")
+axs[1].set_ylabel("Pitch (degrees)")
+axs[2].set_ylabel("Roll (degrees)")
+axs[-1].set_xlabel("Time")
+
 plt.show()
 ```
 
